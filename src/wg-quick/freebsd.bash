@@ -28,6 +28,8 @@ CONFIG_FILE=""
 PROGRAM="${0##*/}"
 ARGS=( "$@" )
 
+IS_ASESCURITY_ON=0
+
 cmd() {
 	echo "[#] $*" >&3
 	"$@"
@@ -96,6 +98,17 @@ parse_options() {
 			PostDown) POST_DOWN+=( "$value" ); continue ;;
 			SaveConfig) read_bool SAVE_CONFIG "$value"; continue ;;
 			esac
+			case "$key" in
+			Jc);&
+			Jmin);&
+			Jmax);&
+			S1);&
+			S2);&
+			H1);&
+			H2);&
+			H3);&
+			H4) IS_ASESCURITY_ON=1;;
+			esac
 		fi
 		WG_CONFIG+="$line"$'\n'
 	done < "$CONFIG_FILE"
@@ -116,7 +129,11 @@ auto_su() {
 
 add_if() {
 	local ret rc
-	if ret="$(cmd ifconfig wg create name "$INTERFACE" 2>&1 >/dev/null)"; then
+	local cmd="ifconfig wg create name "$INTERFACE""
+	if [[ $IS_ASESCURITY_ON == 1 ]]; then
+		cmd="wireguard-go "$INTERFACE"";
+	fi
+	if ret="$(cmd $cmd 2>&1 >/dev/null)"; then
 		return 0
 	fi
 	rc=$?

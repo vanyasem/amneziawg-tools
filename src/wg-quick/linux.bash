@@ -26,6 +26,7 @@ SAVE_CONFIG=0
 CONFIG_FILE=""
 PROGRAM="${0##*/}"
 ARGS=( "$@" )
+IS_ASESCURITY_ON=0
 
 cmd() {
 	echo "[#] $*" >&2
@@ -36,6 +37,7 @@ die() {
 	echo "$PROGRAM: $*" >&2
 	exit 1
 }
+
 
 parse_options() {
 	local interface_section=0 line key value stripped v
@@ -67,6 +69,17 @@ parse_options() {
 			PostDown) POST_DOWN+=( "$value" ); continue ;;
 			SaveConfig) read_bool SAVE_CONFIG "$value"; continue ;;
 			esac
+			case "$key" in
+			Jc);&
+			Jmin);&
+			Jmax);&
+			S1);&
+			S2);&
+			H1);&
+			H2);&
+			H3);&
+			H4) IS_ASESCURITY_ON=1;;
+			esac
 		fi
 		WG_CONFIG+="$line"$'\n'
 	done < "$CONFIG_FILE"
@@ -87,7 +100,11 @@ auto_su() {
 
 add_if() {
 	local ret
-	if ! cmd ip link add "$INTERFACE" type wireguard; then
+	local cmd="ip link add "$INTERFACE" type wireguard"
+	if [[ $IS_ASESCURITY_ON == 1 ]]; then
+		cmd="wireguard-go "$INTERFACE"";
+	fi
+	if ! cmd $cmd; then
 		ret=$?
 		[[ -e /sys/module/wireguard ]] || ! command -v "${WG_QUICK_USERSPACE_IMPLEMENTATION:-wireguard-go}" >/dev/null && exit $ret
 		echo "[!] Missing WireGuard kernel module. Falling back to slow userspace implementation." >&2
