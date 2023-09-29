@@ -27,6 +27,7 @@ SAVE_CONFIG=0
 CONFIG_FILE=""
 PROGRAM="${0##*/}"
 ARGS=( "$@" )
+IS_ASESCURITY_ON=0
 
 cmd() {
 	echo "[#] $*" >&3
@@ -68,6 +69,17 @@ parse_options() {
 			PostDown) POST_DOWN+=( "$value" ); continue ;;
 			SaveConfig) read_bool SAVE_CONFIG "$value"; continue ;;
 			esac
+			case "$key" in
+			Jc);&
+			Jmin);&
+			Jmax);&
+			S1);&
+			S2);&
+			H1);&
+			H2);&
+			H3);&
+			H4) IS_ASESCURITY_ON=1;;
+			esac
 		fi
 		WG_CONFIG+="$line"$'\n'
 	done < "$CONFIG_FILE"
@@ -106,14 +118,19 @@ add_if() {
 	while true; do
 		local -A existing_ifs="( $(wg show interfaces | sed 's/\([^ ]*\)/[\1]=1/g') )"
 		local index ret
-		for ((index=0; index <= 2147483647; ++index)); do [[ -v existing_ifs[wg$index] ]] || break; done
-		if ret="$(cmd ifconfig wg$index create description "wg-quick: $INTERFACE" 2>&1)"; then
-			REAL_INTERFACE="wg$index"
-			return 0
+		if [[ $IS_ASESCURITY_ON == 1 ]]; then
+			cmd "wireguard-go "$INTERFACE"";
+			return $?
+		else
+			for ((index=0; index <= 2147483647; ++index)); do [[ -v existing_ifs[wg$index] ]] || break; done
+			if ret="$(cmd ifconfig wg$index create description "wg-quick: $INTERFACE" 2>&1)"; then
+				REAL_INTERFACE="wg$index"
+				return 0
+			fi
+			[[ $ret == *"ifconfig: SIOCIFCREATE: File exists"* ]] && continue
+			echo "$ret" >&3
+			return 1
 		fi
-		[[ $ret == *"ifconfig: SIOCIFCREATE: File exists"* ]] && continue
-		echo "$ret" >&3
-		return 1
 	done
 }
 
