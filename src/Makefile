@@ -69,7 +69,7 @@ LDFLAGS += -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsyst
 # The use of -Wl,/delayload: here implies we're using llvm-mingw
 LDFLAGS += -Wl,/delayload:ws2_32.dll -Wl,/delayload:setupapi.dll -Wl,/delayload:ole32.dll -Wl,/delayload:advapi32.dll
 VERSION := $(patsubst "%",%,$(filter "%",$(file < version.h)))
-amneziawg: wincompat/libc.o wincompat/init.o wincompat/loader.o wincompat/resources.o
+wg: wincompat/libc.o wincompat/init.o wincompat/loader.o wincompat/resources.o
 wincompat/resources.o: wincompat/resources.rc wincompat/manifest.xml
 	$(WINDRES) -DVERSION_STR=$(VERSION) -O coff -c 65001 -i $< -o $@
 endif
@@ -86,29 +86,29 @@ RM := @a() { echo "  CLEAN   $$@"; $(BUILT_IN_RM) "$$@"; }; a
 WINDRES := @a() { echo "  WINDRES $${@: -1}"; $(WINDRES) "$$@"; }; a
 endif
 
-amneziawg: $(sort $(patsubst %.c,%.o,$(wildcard *.c)))
+wg: $(sort $(patsubst %.c,%.o,$(wildcard *.c)))
 
 clean:
-	$(RM) amneziawg *.o *.d $(wildcard wincompat/*.o wincompat/*.lib wincompat/*.dll)
+	$(RM) wg *.o *.d $(wildcard wincompat/*.o wincompat/*.lib wincompat/*.dll)
 
-install: amneziawg
-	@install -v -d "$(DESTDIR)$(BINDIR)" && install -v -m 0755 amneziawg "$(DESTDIR)$(BINDIR)/amneziawg"
-	@install -v -d "$(DESTDIR)$(MANDIR)/man8" && install -v -m 0644 man/wg.8 "$(DESTDIR)$(MANDIR)/man8/amneziawg.8"
+install: wg
+	@install -v -d "$(DESTDIR)$(BINDIR)" && install -v -m 0755 wg "$(DESTDIR)$(BINDIR)/wg"
+	@install -v -d "$(DESTDIR)$(MANDIR)/man8" && install -v -m 0644 man/wg.8 "$(DESTDIR)$(MANDIR)/man8/wg.8"
 	@[ "$(WITH_BASHCOMPLETION)" = "yes" ] || exit 0; \
-	install -v -d "$(DESTDIR)$(BASHCOMPDIR)" && install -v -m 0644 completion/wg.bash-completion "$(DESTDIR)$(BASHCOMPDIR)/amneziawg"
+	install -v -d "$(DESTDIR)$(BASHCOMPDIR)" && install -v -m 0644 completion/wg.bash-completion "$(DESTDIR)$(BASHCOMPDIR)/wg"
 	@[ "$(WITH_WGQUICK)" = "yes" ] || exit 0; \
-	install -v -m 0755 wg-quick/$(PLATFORM).bash "$(DESTDIR)$(BINDIR)/amneziawgwg-quick" && install -v -m 0700 -d "$(DESTDIR)$(SYSCONFDIR)/amneziawg"
+	install -v -m 0755 wg-quick/$(PLATFORM).bash "$(DESTDIR)$(BINDIR)/wg-quick" && install -v -m 0700 -d "$(DESTDIR)$(SYSCONFDIR)/wireguard"
 	@[ "$(WITH_WGQUICK)" = "yes" ] || exit 0; \
-	install -v -m 0644 man/wg-quick.8 "$(DESTDIR)$(MANDIR)/man8/amneziawgwg-quick.8"
+	install -v -m 0644 man/wg-quick.8 "$(DESTDIR)$(MANDIR)/man8/wg-quick.8"
 	@[ "$(WITH_WGQUICK)" = "yes" -a "$(WITH_BASHCOMPLETION)" = "yes" ] || exit 0; \
-	install -v -m 0644 completion/wg-quick.bash-completion "$(DESTDIR)$(BASHCOMPDIR)/amneziawgwg-quick"
+	install -v -m 0644 completion/wg-quick.bash-completion "$(DESTDIR)$(BASHCOMPDIR)/wg-quick"
 	@[ "$(WITH_WGQUICK)" = "yes" -a "$(WITH_SYSTEMDUNITS)" = "yes" ] || exit 0; \
 	install -v -d "$(DESTDIR)$(SYSTEMDUNITDIR)" && install -v -m 0644 systemd/* "$(DESTDIR)$(SYSTEMDUNITDIR)/"
 
 check: clean
-	scan-build --html-title=wireguard-tools -maxloop 100 --view --keep-going $(MAKE) amneziawgwg
+	scan-build --html-title=wireguard-tools -maxloop 100 --view --keep-going $(MAKE) wg
 
-all: amneziawg
+all: wg
 .DEFAULT_GOAL: all
 .PHONY: clean install check
 
