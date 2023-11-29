@@ -91,7 +91,7 @@ amneziawg: $(sort $(patsubst %.c,%.o,$(wildcard *.c)))
 clean:
 	$(RM) amneziawg *.o *.d $(wildcard wincompat/*.o wincompat/*.lib wincompat/*.dll)
 
-install: wg
+install: amneziawg
 	@install -v -d "$(DESTDIR)$(BINDIR)" && install -v -m 0755 amneziawg "$(DESTDIR)$(BINDIR)/amneziawg"
 	@install -v -d "$(DESTDIR)$(MANDIR)/man8" && install -v -m 0644 man/wg.8 "$(DESTDIR)$(MANDIR)/man8/amneziawg.8"
 	@[ "$(WITH_BASHCOMPLETION)" = "yes" ] || exit 0; \
@@ -108,7 +108,7 @@ install: wg
 check: clean
 	scan-build --html-title=wireguard-tools -maxloop 100 --view --keep-going $(MAKE) amneziawgwg
 
-all: wg
+all: amneziawg
 .DEFAULT_GOAL: all
 .PHONY: clean install check
 
