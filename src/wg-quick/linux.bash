@@ -199,7 +199,7 @@ remove_firewall() {
 		for iptables in iptables ip6tables; do
 			restore="" found=0
 			while read -r line; do
-				[[ $line == "*"* || $line == COMMIT || $line == "-A "*"-m comment --comment \"wg-quick(8) rule for $INTERFACE\""* ]] || continue
+				[[ $line == "*"* || $line == COMMIT || $line == "-A "*"-m comment --comment \"awg-quick(8) rule for $INTERFACE\""* ]] || continue
 				[[ $line == "-A"* ]] && found=1
 				printf -v restore '%s%s\n' "$restore" "${line/#-A/-D}"
 			done < <($iptables-save 2>/dev/null)
@@ -224,7 +224,7 @@ add_default() {
 	cmd ip $proto rule add table main suppress_prefixlength 0
 	cmd ip $proto route add "$1" dev "$INTERFACE" table $table
 
-	local marker="-m comment --comment \"wg-quick(8) rule for $INTERFACE\"" restore=$'*raw\n' nftable="wg-quick-$INTERFACE" nftcmd 
+	local marker="-m comment --comment \"awg-quick(8) rule for $INTERFACE\"" restore=$'*raw\n' nftable="wg-quick-$INTERFACE" nftcmd
 	printf -v nftcmd '%sadd table %s %s\n' "$nftcmd" "$pf" "$nftable"
 	printf -v nftcmd '%sadd chain %s %s preraw { type filter hook prerouting priority -300; }\n' "$nftcmd" "$pf" "$nftable"
 	printf -v nftcmd '%sadd chain %s %s premangle { type filter hook prerouting priority -150; }\n' "$nftcmd" "$pf" "$nftable"
@@ -248,7 +248,7 @@ add_default() {
 }
 
 set_config() {
-	cmd wg setconf "$INTERFACE" <(echo "$WG_CONFIG")
+	cmd awg setconf "$INTERFACE" <(echo "$WG_CONFIG")
 }
 
 save_config() {
@@ -343,7 +343,7 @@ cmd_up() {
 }
 
 cmd_down() {
-	[[ " $(wg show interfaces) " == *" $INTERFACE "* ]] || die "\`$INTERFACE' is not a WireGuard interface"
+	[[ " $(awg show interfaces) " == *" $INTERFACE "* ]] || die "\`$INTERFACE' is not a WireGuard interface"
 	execute_hooks "${PRE_DOWN[@]}"
 	[[ $SAVE_CONFIG -eq 0 ]] || save_config
 	del_if
@@ -353,7 +353,7 @@ cmd_down() {
 }
 
 cmd_save() {
-	[[ " $(wg show interfaces) " == *" $INTERFACE "* ]] || die "\`$INTERFACE' is not a WireGuard interface"
+	[[ " $(awg show interfaces) " == *" $INTERFACE "* ]] || die "\`$INTERFACE' is not a WireGuard interface"
 	save_config
 }
 
