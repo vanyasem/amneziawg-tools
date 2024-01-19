@@ -27,7 +27,7 @@ _awg_quick_completion() {
 			COMPREPLY+=( "${a[@]}" )
 		elif [[ ${COMP_WORDS[1]} == down ]]; then
 			if [[ $OSTYPE == *openbsd* || $OSTYPE == *darwin* ]]; then
-				for i in /var/run/wireguard/*.name; do
+				for i in /var/run/amneziawg/*.name; do
 					i="${i##*/}"; i="${i%.name}"
 					mapfile -t a < <(compgen -W "$i" -- "${COMP_WORDS[2]}")
 					COMPREPLY+=( "${a[@]}" )
