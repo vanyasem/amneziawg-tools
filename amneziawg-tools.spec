@@ -57,6 +57,9 @@ WITH_BASHCOMPLETION=yes WITH_WGQUICK=yes WITH_SYSTEMDUNITS=yes -C src
 %{_mandir}/man8/wg-quick.8*
 
 %changelog
+* Thu Feb 1 2024 Yuri Egorov <ye@amnezia.org> - 1.0.20240201-1
+- Update to 1.0.20240201
+
 * Tue Sep 21 2021 Joe Doss <joe@solidadmin.com> - 1.0.20210914-1
 - contrib/launchd: fix xml syntax error
 - wg-quick: darwin: account for "link#XX" gateways
