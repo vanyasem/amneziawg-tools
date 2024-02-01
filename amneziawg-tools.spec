@@ -1,5 +1,5 @@
 Name:           amneziawg-tools
-Version:        1.0.20240102
+Version:        1.0.20240201
 Release:        1%{?dist}
 URL:            https://www.wireguard.com/
 Summary:        Fast, modern, secure VPN tunnel
